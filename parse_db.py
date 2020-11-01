@@ -214,14 +214,16 @@ def main(args):
             if locus_tag not in db:
                 db[locus_tag] = {}
             if mut not in db[locus_tag]:
-                db[locus_tag][mut] = {"drugs":{}}
-            db[locus_tag][mut]["drugs"][drug] = {}
+                db[locus_tag][mut] = {"annotations":[]}
+            # db[locus_tag][mut]["drugs"][drug] = {}
+            tmp_annotation = {"type":"drug","drug":row["Drug"]}
+            tmp_annotation["confidence"] = confidence.get((locus_tag,row["Mutation"],drug),"indeterminate")
             annotation_columns = set(row.keys()) - set(["Gene","Mutation","Drug"])
             for col in annotation_columns:
                 if row[col]=="":continue
-                db[locus_tag][mut]["drugs"][drug][col.lower()] = row[col]
+                tmp_annotation[col.lower()] = row[col]
+            db[locus_tag][mut]["annotations"].append(tmp_annotation)
             db[locus_tag][mut]["hgvs_mutation"] = row["Mutation"]
-            db[locus_tag][mut]["drugs"][drug]["confidence"] = confidence[(locus_tag,row["Mutation"],drug)] if (locus_tag,row["Mutation"],drug) in confidence else "indeterminate"
             # if row["Mutation"][0]=="p":
             #     print(row)
             #     codon_num = get_codon_num(row["Mutation"])
